@@ -2,7 +2,7 @@ import {NextResponse, type NextRequest} from 'next/server';
 import {SESSION_COOKIE} from './lib/auth';
 
 // Every admin page needs a session; without one, go to the login page and come back afterwards.
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const signedIn = req.cookies.has(SESSION_COOKIE);
   const onLogin = req.nextUrl.pathname === '/login';
   if (!signedIn && !onLogin) {

@@ -10,11 +10,12 @@ export default function Dashboard() {
   const [shown, setShown] = useState(0);
   // Count the total up on load, unless the visitor prefers less motion.
   useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setShown(stats.users); return; }
+    // With reduced motion the first frame jumps straight to the total.
+    const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900;
     const start = performance.now();
     let frame = 0;
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / 900);
+      const t = duration ? Math.min(1, (now - start) / duration) : 1;
       setShown(Math.round(stats.users * (1 - Math.pow(1 - t, 3))));
       if (t < 1) frame = requestAnimationFrame(tick);
     };
