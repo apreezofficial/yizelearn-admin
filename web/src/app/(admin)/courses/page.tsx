@@ -3,6 +3,7 @@
 import {useSearchParams} from 'next/navigation';
 import {Suspense, useState} from 'react';
 import {Badge, Chips, Dialog, Empty, Search, useToast} from '@/components/ui';
+import {Icon} from '@/components/Icon';
 import ui from '@/components/ui.module.css';
 import {courses as seed, statusTone, type AdminCourse} from '@/lib/data';
 import s from '../list.module.css';
@@ -43,10 +44,10 @@ function Courses() {
     </div>
 
     {open && <Dialog title={open.title} onClose={() => setOpen(null)} actions={<button className={ui.outline} onClick={() => setOpen(null)}>Close</button>}>
-      {open.status !== 'Published' && <button className={ui.row} onClick={() => act({status: 'Published'}, `${open.title} is published`)}><span className={ui.rowIcon}>✓</span><span className={ui.rowCopy}><strong>Review and approve</strong><span>Publish to the catalog</span></span></button>}
-      <button className={ui.row} onClick={() => act({featured: !open.featured}, open.featured ? 'Removed from Top courses' : 'Now in Top courses')}><span className={ui.rowIcon}>★</span><span className={ui.rowCopy}><strong>{open.featured ? 'Remove from home' : 'Feature on home'}</strong><span>{open.featured ? 'Take it out of Top courses' : 'Show in Top courses'}</span></span></button>
-      {open.status === 'Published' && <button className={ui.row} onClick={() => act({status: 'Unpublished', featured: false}, `${open.title} is hidden from the catalog`)}><span className={ui.rowIcon}>🔒</span><span className={ui.rowCopy}><strong>Unpublish</strong><span>Hide from the catalog</span></span></button>}
-      <button className={ui.row} onClick={() => { setDeleting(open); setOpen(null); }}><span className={ui.rowIcon} style={{background: 'var(--danger-soft)', color: 'var(--danger)'}}>✕</span><span className={ui.rowCopy}><strong style={{color: 'var(--danger)'}}>Delete course</strong></span></button>
+      {open.status !== 'Published' && <button className={ui.row} onClick={() => act({status: 'Published'}, `${open.title} is published`)}><span className={ui.rowIcon}><Icon name="check" size={18} /></span><span className={ui.rowCopy}><strong>Review and approve</strong><span>Publish to the catalog</span></span></button>}
+      <button className={ui.row} onClick={() => act({featured: !open.featured}, open.featured ? 'Removed from Top courses' : 'Now in Top courses')}><span className={ui.rowIcon}><Icon name="star" size={18} /></span><span className={ui.rowCopy}><strong>{open.featured ? 'Remove from home' : 'Feature on home'}</strong><span>{open.featured ? 'Take it out of Top courses' : 'Show in Top courses'}</span></span></button>
+      {open.status === 'Published' && <button className={ui.row} onClick={() => act({status: 'Unpublished', featured: false}, `${open.title} is hidden from the catalog`)}><span className={ui.rowIcon}><Icon name="lock" size={18} /></span><span className={ui.rowCopy}><strong>Unpublish</strong><span>Hide from the catalog</span></span></button>}
+      <button className={ui.row} onClick={() => { setDeleting(open); setOpen(null); }}><span className={ui.rowIcon} style={{background: 'var(--danger-soft)', color: 'var(--danger)'}}><Icon name="close" size={18} /></span><span className={ui.rowCopy}><strong style={{color: 'var(--danger)'}}>Delete course</strong></span></button>
     </Dialog>}
 
     {deleting && <Dialog title={`Delete ${deleting.title}?`} onClose={() => setDeleting(null)} actions={<>

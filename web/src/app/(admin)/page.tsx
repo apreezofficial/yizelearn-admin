@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
 import {courses, integrations, signups, stats, tickets} from '@/lib/data';
+import {Icon} from '@/components/Icon';
 import ui from '@/components/ui.module.css';
 import s from './page.module.css';
 
@@ -57,9 +58,9 @@ export default function Dashboard() {
       </div>
       <div className={`${ui.card} ${s.attention} rise`} style={{animationDelay: '240ms'}}>
         <h2>Needs attention <Link href="/courses?filter=In%20review" className={ui.link}>See all</Link></h2>
-        {inReview > 0 && <Link href="/courses?filter=In%20review" className={ui.row}><span className={ui.rowIcon}>▭</span><span className={ui.rowCopy}><strong>{inReview} {inReview === 1 ? 'course' : 'courses'} in review</strong><span>Oldest waiting 2 days</span></span>›</Link>}
-        {notSetUp > 0 && <Link href="/settings?tab=Integrations" className={ui.row}><span className={ui.rowIcon}>▤</span><span className={ui.rowCopy}><strong>Payment gateway warning</strong><span>Check provider keys</span></span>›</Link>}
-        {open > 0 && <Link href="/support" className={ui.row}><span className={ui.rowIcon}>✉</span><span className={ui.rowCopy}><strong>{open} open support tickets</strong><span>Reply within a day</span></span>›</Link>}
+        {inReview > 0 && <Link href="/courses?filter=In%20review" className={ui.row}><span className={ui.rowIcon}><Icon name="courses" size={18} /></span><span className={ui.rowCopy}><strong>{inReview} {inReview === 1 ? 'course' : 'courses'} in review</strong><span>Oldest waiting 2 days</span></span><Icon name="next" size={18} className={ui.chev} /></Link>}
+        {notSetUp > 0 && <Link href="/settings?tab=Integrations" className={ui.row}><span className={ui.rowIcon}><Icon name="payments" size={18} /></span><span className={ui.rowCopy}><strong>Payment gateway warning</strong><span>Check provider keys</span></span><Icon name="next" size={18} className={ui.chev} /></Link>}
+        {open > 0 && <Link href="/support" className={ui.row}><span className={ui.rowIcon}><Icon name="support" size={18} /></span><span className={ui.rowCopy}><strong>{open} open support tickets</strong><span>Reply within a day</span></span><Icon name="next" size={18} className={ui.chev} /></Link>}
       </div>
     </section>
   </>;

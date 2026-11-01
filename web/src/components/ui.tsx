@@ -2,6 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import type {Tone} from '@/lib/data';
+import {Icon} from './Icon';
 import ui from './ui.module.css';
 
 export const initials = (name: string) => name.split(/[\s@.]/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
@@ -16,7 +17,7 @@ export function Badge({label, tone}: {label: string; tone: Tone}) {
 
 export function Search({value, onChange, placeholder}: {value: string; onChange: (v: string) => void; placeholder: string}) {
   return <label className={ui.search}>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+    <Icon name="search" size={18} />
     <input type="search" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} aria-label={placeholder} />
   </label>;
 }

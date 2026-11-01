@@ -1,4 +1,6 @@
 .shell { display: flex; min-height: 100dvh; }
+
+/* Wide screens: sidebar */
 .side { width: 240px; flex: none; background: var(--sand); border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100dvh; }
 .logo { height: auto; object-fit: contain; margin: 0 8px 26px; }
 .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
@@ -6,25 +8,33 @@
 .link:hover { background: var(--blue50); color: var(--ink); }
 .linkOn { composes: link; background: var(--blue100); color: var(--blue700); font-weight: 800; }
 .linkOn:hover { background: var(--blue100); color: var(--blue700); }
-.logout { height: 44px; border: 0; background: none; color: var(--danger); font-weight: 700; text-align: left; padding: 0 12px; cursor: pointer; border-radius: 12px; }
+.logout { display: flex; align-items: center; gap: 12px; height: 44px; border: 0; background: none; color: var(--danger); font-weight: 700; padding: 0 12px; cursor: pointer; border-radius: 12px; }
 .logout:hover { background: var(--danger-soft); }
+
 .main { flex: 1; min-width: 0; }
-.top { display: flex; align-items: center; gap: 14px; padding: 22px 32px 10px; }
+
+/* Top bar stays put while the page scrolls, with the page blurred underneath. */
+.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 14px; padding: 18px 32px 12px; padding-top: max(18px, env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--cream) 94%, transparent); backdrop-filter: saturate(1.6) blur(14px); -webkit-backdrop-filter: saturate(1.6) blur(14px); border-bottom: 1px solid transparent; }
 .title { margin: 0; font-size: 28px; font-weight: 800; }
 .underline { display: block; width: 24px; height: 3px; border-radius: 2px; background: var(--marigold); margin-top: 4px; }
 .topRight { margin-left: auto; display: flex; align-items: center; gap: 16px; }
 .bell { position: relative; display: grid; color: var(--ink); }
-.dot { position: absolute; top: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 1.5px solid var(--cream); }
+.dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 1.5px solid var(--cream); }
 .content { padding: 12px 32px 48px; max-width: 1180px; animation: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.menu { display: none; border: 0; background: none; padding: 6px; cursor: pointer; }
-.scrim { display: none; }
+
+/* Phones: bottom tab bar, as in the mobile design */
+.tabs { display: none; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-top: 8px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.tabIcon { display: grid; place-items: center; width: 52px; height: 30px; border-radius: 15px; transition: background 0.2s; }
+.tabOn { composes: tab; color: var(--blue700); font-weight: 800; }
+.tabOn .tabIcon { background: var(--blue100); }
 
 @media (max-width: 860px) {
-  .side { position: fixed; left: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-  .sideOpen { transform: none; }
-  .scrim { display: block; position: fixed; inset: 0; background: rgba(23, 28, 38, 0.45); z-index: 30; }
-  .menu { display: grid; }
-  .top { padding: 16px 16px 8px; }
+  .side { display: none; }
+  .top { padding: 14px 16px 10px; padding-top: max(14px, env(safe-area-inset-top)); border-bottom-color: var(--line); }
   .title { font-size: 24px; }
-  .content { padding: 8px 16px 40px; }
+  .content { padding: 12px 16px calc(96px + env(safe-area-inset-bottom)); }
+  .tabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding-bottom: max(8px, env(safe-area-inset-bottom)); height: calc(64px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--sand) 94%, transparent); backdrop-filter: saturate(1.6) blur(14px); -webkit-backdrop-filter: saturate(1.6) blur(14px); border-top: 1px solid var(--line); }
 }

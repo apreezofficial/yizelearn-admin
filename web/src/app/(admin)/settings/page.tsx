@@ -3,6 +3,7 @@
 import {useSearchParams} from 'next/navigation';
 import {Suspense, useState} from 'react';
 import {Badge, Chips, Dialog, Empty, Search, Switch, useToast} from '@/components/ui';
+import {Icon} from '@/components/Icon';
 import ui from '@/components/ui.module.css';
 import {auditLog, categories, instructorCount, instructorPermissions, integrations as seedIntegrations, privacyRequests as seedPrivacy, tags, type Integration, type PrivacyRequest} from '@/lib/data';
 import s from '../list.module.css';
@@ -11,11 +12,16 @@ const tabs = ['Instructor role', 'Categories', 'Integrations', 'Announcement', '
 type Tab = (typeof tabs)[number];
 
 export default function SettingsPage() {
-  return <Suspense><Settings /></Suspense>;
+  return <Suspense><SettingsFromUrl /></Suspense>;
 }
 
-function Settings() {
+// Remount when the ?tab= link changes, so the bell and More links switch tabs even from this page.
+function SettingsFromUrl() {
   const initial = useSearchParams().get('tab') as Tab | null;
+  return <Settings key={initial ?? ''} initial={initial} />;
+}
+
+function Settings({initial}: {initial: Tab | null}) {
   const [tab, setTab] = useState<Tab>(initial && tabs.includes(initial) ? initial : 'Instructor role');
   const {toast, node} = useToast();
   return <>
@@ -52,7 +58,7 @@ function Categories() {
   const add = () => { if (!name.trim()) return; setList(l => ({...l, [kind]: [...l[kind], {name: name.trim(), count: 0}]})); setName(''); };
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 640, padding: 18}}>
     <Chips items={['Categories', 'Tags'] as const} active={kind} onSelect={setKind} />
-    {list[kind].map(c => <div key={c.name} className={ui.row} style={{cursor: 'default'}}><span className={ui.rowIcon}>▦</span><span className={ui.rowCopy}><strong>{c.name}</strong><span>{c.count} courses</span></span></div>)}
+    {list[kind].map(c => <div key={c.name} className={ui.row} style={{cursor: 'default'}}><span className={ui.rowIcon}><Icon name="grid" size={18} /></span><span className={ui.rowCopy}><strong>{c.name}</strong><span>{c.count} courses</span></span></div>)}
     <form className={s.actions} style={{marginTop: 14}} onSubmit={e => { e.preventDefault(); add(); }}>
       <input className={ui.input} placeholder={`New ${kind === 'Tags' ? 'tag' : 'category'}`} value={name} onChange={e => setName(e.target.value)} />
       <button className={ui.button} style={{flex: 'none'}} disabled={!name.trim()}>Add</button>
@@ -67,7 +73,7 @@ function Integrations({toast}: Toast) {
   const [secret, setSecret] = useState('');
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 640}}>
     {list.map(x => <button key={x.id} className={ui.row} onClick={() => { setEditing(x); setKey(''); setSecret(''); }}>
-      <span className={ui.rowIcon}>▦</span><span className={ui.rowCopy}><strong>{x.name}</strong></span><Badge label={x.connected ? 'Connected' : 'Not set up'} tone={x.connected ? 'green' : 'grey'} />
+      <span className={ui.rowIcon}><Icon name="grid" size={18} /></span><span className={ui.rowCopy}><strong>{x.name}</strong></span><Badge label={x.connected ? 'Connected' : 'Not set up'} tone={x.connected ? 'green' : 'grey'} />
     </button>)}
     {editing && <Dialog title={editing.name} onClose={() => setEditing(null)} actions={<>
       <button className={ui.outline} onClick={() => setEditing(null)}>Cancel</button>
@@ -108,7 +114,7 @@ function Privacy({toast}: Toast) {
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 640, padding: 18}}>
     <Chips items={['Open', 'Done'] as const} active={filter} onSelect={setFilter} />
     {shown.map(r => <button key={r.id} className={ui.row} disabled={!r.open} onClick={() => setReviewing(r)}>
-      <span className={ui.rowIcon}>🔒</span><span className={ui.rowCopy}><strong>{r.kind}</strong><span>{r.who}, {r.due}</span></span><Badge label={r.open ? 'Open' : 'Done'} tone={r.open ? 'gold' : 'green'} />
+      <span className={ui.rowIcon}><Icon name="lock" size={18} /></span><span className={ui.rowCopy}><strong>{r.kind}</strong><span>{r.who}, {r.due}</span></span><Badge label={r.open ? 'Open' : 'Done'} tone={r.open ? 'gold' : 'green'} />
     </button>)}
     {!shown.length && <Empty title={filter === 'Open' ? 'No open requests' : 'Nothing done yet'} message="Data exports and deletions show up here." />}
     {reviewing && <Dialog title={reviewing.kind} onClose={() => setReviewing(null)} actions={<>
@@ -125,7 +131,7 @@ function Audit() {
   const shown = auditLog.filter(e => (filter === 'All' || e.kind === filter) && (!q || e.title.toLowerCase().includes(q) || e.who.toLowerCase().includes(q)));
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 760, padding: 18}}>
     <div className={s.tools}><Search value={query} onChange={setQuery} placeholder="Search log" /><Chips items={['All', 'Users', 'Payments'] as const} active={filter} onSelect={setFilter} /></div>
-    {shown.map(e => <div key={e.id} className={ui.row} style={{cursor: 'default'}}><span className={ui.rowIcon}>▤</span><span className={ui.rowCopy}><strong>{e.title}</strong><span>{e.who}</span></span></div>)}
+    {shown.map(e => <div key={e.id} className={ui.row} style={{cursor: 'default'}}><span className={ui.rowIcon}><Icon name="file" size={18} /></span><span className={ui.rowCopy}><strong>{e.title}</strong><span>{e.who}</span></span></div>)}
     {!shown.length && <Empty title="Nothing in the log" message="Try another search." />}
   </div>;
 }
