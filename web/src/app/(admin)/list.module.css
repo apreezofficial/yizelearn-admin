@@ -1,0 +1,17 @@
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+.tools .spacer { flex: 1; }
+.panel { padding: 6px 12px; overflow-x: auto; }
+.bulk { display: flex; align-items: center; gap: 12px; padding: 10px 14px; margin-bottom: 12px; background: var(--blue50); border-radius: 12px; font-weight: 700; animation: rise 0.25s ease-out both; }
+.bulk .spacer { flex: 1; }
+.check { width: 18px; height: 18px; accent-color: var(--blue700); cursor: pointer; }
+.right { text-align: right; }
+.split { display: grid; grid-template-columns: 1fr 1.2fr; gap: 14px; }
+.thread { padding: 18px; display: flex; flex-direction: column; gap: 12px; min-height: 420px; }
+.bubble { max-width: 80%; padding: 11px 14px; border-radius: 14px; font-size: 14px; line-height: 1.45; }
+.theirs { composes: bubble; align-self: flex-start; background: var(--sand); }
+.mine { composes: bubble; align-self: flex-end; background: #3E6FB0; color: #fff; }
+.composer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.actions { display: flex; gap: 10px; }
+.actions > * { flex: 1; }
+.selected { background: var(--blue50); }
+@media (max-width: 860px) { .split { grid-template-columns: 1fr; } }

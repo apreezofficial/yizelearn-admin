@@ -1,0 +1,12 @@
+.page { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; }
+.card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--sand-line); border-radius: 24px; padding: 32px 28px; animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.logo { display: block; margin: 0 auto 20px; height: auto; object-fit: contain; }
+.title { font-size: 26px; font-weight: 800; text-align: center; margin: 0; }
+.sub { color: var(--muted); text-align: center; margin: 8px 0 22px; line-height: 1.5; font-size: 14px; }
+.sub strong { color: var(--ink); }
+.submit { width: 100%; margin-top: 20px; }
+.codeRow { position: relative; display: flex; gap: 8px; justify-content: center; cursor: text; }
+.codeBox { width: 48px; height: 58px; border-radius: 12px; border: 1px solid var(--sand-line); background: var(--surface); display: grid; place-items: center; font-size: 22px; font-weight: 800; transition: border-color 0.15s; }
+.codeActive { border: 2px solid var(--blue700); }
+.hidden { position: absolute; inset: 0; opacity: 0; width: 100%; }
+.links { display: flex; justify-content: space-between; margin-top: 22px; }
