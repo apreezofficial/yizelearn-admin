@@ -1,17 +1,34 @@
-.grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 14px; }
+.grid { display: grid; grid-template-columns: 1.7fr 1fr 1fr; gap: 14px; }
 
-/* Navy hero: floating bubbles and a soft light sweep after it lands. */
-.hero { position: relative; overflow: hidden; background: #17335A; color: #FEF9F2; border-radius: var(--radius-card); padding: 20px; min-height: 140px; }
-.hero small { opacity: 0.85; font-size: 13px; }
-.hero strong { position: relative; display: block; font-size: 40px; font-weight: 800; margin: 6px 0 10px; font-variant-numeric: tabular-nums; }
+/* Navy hero: layered gradient, a faint dot grid, glowing bubbles, then a light sweep once it lands. */
+.hero { position: relative; overflow: hidden; isolation: isolate; color: #FEF9F2; border-radius: 20px; padding: 20px 22px 18px; min-height: 172px; display: flex; flex-direction: column;
+  background: linear-gradient(135deg, #1F4A82 0%, #17335A 55%, #112744 100%); box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 14px 32px -12px rgba(23, 51, 90, 0.55); }
+.glow { position: absolute; right: -60px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(116, 167, 227, 0.45), transparent 65%); z-index: -1; }
+.dots { position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1.2px); background-size: 14px 14px;
+  -webkit-mask-image: linear-gradient(100deg, transparent 35%, #000 100%); mask-image: linear-gradient(100deg, transparent 35%, #000 100%); }
+.heroLabel { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: rgba(254, 249, 242, 0.85); }
+.heroIcon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255, 255, 255, 0.12); }
+.hero strong { position: relative; display: block; font-size: 42px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 8px; font-variant-numeric: tabular-nums; }
+.heroMeta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .pill { position: relative; display: inline-block; background: var(--marigold); color: #17335A; font-weight: 800; font-size: 12px; border-radius: 999px; padding: 4px 10px; font-variant-numeric: tabular-nums; animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both; }
-.bubble { position: absolute; right: 16px; top: 8px; width: 90px; height: 90px; border-radius: 50%; background: #24508F; animation: bubbleIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both, float 4.8s ease-in-out 0.9s infinite; }
-.bubbleSmall { position: absolute; right: 14px; bottom: 18px; width: 30px; height: 30px; border-radius: 50%; background: #4F8BCD; animation: bubbleIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both, float 4s ease-in-out 1s infinite reverse; }
-.goldDot { position: absolute; right: 62px; bottom: 20px; width: 11px; height: 11px; border-radius: 50%; background: var(--marigold); animation: bubbleIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both, float 3.4s ease-in-out 1s infinite; }
-.shine { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.12) 50%, transparent 70%); transform: translateX(-100%); animation: shine 1.6s ease-out 0.8s both; pointer-events: none; }
+.vs { font-size: 12px; font-weight: 700; color: #9FD8BE; }
+.split { display: flex; gap: 0; margin-top: auto; padding-top: 14px; max-width: 360px; }
+.split span { flex: 1; display: flex; flex-direction: column; font-size: 11px; color: rgba(254, 249, 242, 0.7); padding-right: 12px; }
+.split span + span { padding-left: 12px; border-left: 1px solid rgba(255, 255, 255, 0.14); }
+.split b { font-size: 15px; color: #FEF9F2; font-variant-numeric: tabular-nums; }
+.bubble { position: absolute; right: 22px; top: 18px; width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #3D7BC6, #24508F 70%); box-shadow: 0 10px 24px -8px rgba(0,0,0,.45);
+  animation: bubbleIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both, float 4.8s ease-in-out 0.9s infinite; }
+.ring { position: absolute; right: 6px; top: 2px; width: 116px; height: 116px; border-radius: 50%; border: 1.5px dashed rgba(255, 255, 255, 0.16); animation: bubbleIn 0.9s ease-out 0.1s both, spin 40s linear infinite; }
+.bubbleSmall { position: absolute; right: 14px; top: 104px; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #8DB6EA, #4F8BCD 70%); animation: bubbleIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both, float 4s ease-in-out 1s infinite reverse; }
+.goldDot { position: absolute; right: 112px; top: 26px; width: 10px; height: 10px; border-radius: 50%; background: var(--marigold); box-shadow: 0 0 12px rgba(240, 183, 74, 0.7); animation: bubbleIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both, float 3.4s ease-in-out 1s infinite; }
+.shine { position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%); transform: translateX(-100%); animation: shine 1.6s ease-out 0.8s both; pointer-events: none; }
+/* Decorations sit behind the numbers so text never collides with them on narrow cards. */
+.bubble, .ring, .bubbleSmall, .goldDot { z-index: -1; }
 @keyframes float { 50% { transform: translateY(6px); } }
-@keyframes bubbleIn { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes bubbleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes shine { to { transform: translateX(100%); } }
+@keyframes spin { to { rotate: 360deg; } }
+@media (prefers-color-scheme: dark) { .hero { box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 0 0 1px rgba(141, 182, 234, 0.12); } }
 
 /* Stat tiles: count up, with a sparkline that draws itself. */
 .tile { padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s; }

@@ -15,6 +15,10 @@ const ticketTrend = [22, 19, 21, 17, 18, 15, 14];
 export default function Dashboard() {
   const users = useCountUp(stats.users, {duration: 1200});
   const thisWeek = useCountUp(stats.usersThisWeek, {delay: 500});
+  const students = useCountUp(stats.students, {duration: 1200, delay: 250});
+  const instructors = useCountUp(stats.instructors, {delay: 350});
+  const admins = useCountUp(stats.admins, {delay: 450});
+  const growth = Math.round(((stats.usersThisWeek - stats.usersLastWeek) / stats.usersLastWeek) * 100);
   const inReview = courses.filter(c => c.status === 'In review').length;
   const open = tickets.filter(t => t.open).length;
   const notSetUp = integrations.filter(i => !i.connected).length;
@@ -26,12 +30,20 @@ export default function Dashboard() {
 
   return <>
     <section className={s.grid}>
-      <div className={`${s.hero} rise`} aria-label={`Total users ${stats.users.toLocaleString()}`}>
-        <span className={s.shine} aria-hidden />
-        <span className={s.bubble} /><span className={s.bubbleSmall} /><span className={s.goldDot} />
-        <small>Total users</small>
+      <div className={`${s.hero} rise`} aria-label={`Total users ${stats.users.toLocaleString()}, ${stats.usersThisWeek} new this week`}>
+        <span className={s.glow} aria-hidden /><span className={s.dots} aria-hidden /><span className={s.shine} aria-hidden />
+        <span className={s.ring} aria-hidden /><span className={s.bubble} aria-hidden /><span className={s.bubbleSmall} aria-hidden /><span className={s.goldDot} aria-hidden />
+        <div className={s.heroLabel}><span className={s.heroIcon}><Icon name="users" size={15} /></span>Total users</div>
         <strong>{users.toLocaleString()}</strong>
-        <span className={s.pill}>+{thisWeek} this week</span>
+        <div className={s.heroMeta}>
+          <span className={s.pill}>+{thisWeek} this week</span>
+          <span className={s.vs}>{growth >= 0 ? '↑' : '↓'} {Math.abs(growth)}% vs last week</span>
+        </div>
+        <div className={s.split}>
+          <span><b>{students.toLocaleString()}</b>Students</span>
+          <span><b>{instructors.toLocaleString()}</b>Instructors</span>
+          <span><b>{admins}</b>Admins</span>
+        </div>
       </div>
       <Tile href="/courses" icon="courses" label="Courses" value={stats.courses} note={`${stats.inReview} in review`} trend={courseTrend} delay={80} />
       <Tile href="/support" icon="support" label="Open tickets" value={stats.tickets} note={`${stats.urgent} urgent`} trend={ticketTrend} delay={160} />

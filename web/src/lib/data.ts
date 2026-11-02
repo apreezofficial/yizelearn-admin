@@ -14,7 +14,7 @@ export const users: User[] = [
 ];
 export const initials = (name: string) => name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 
-export const stats = {users: 12480, usersThisWeek: 240, courses: 312, inReview: 18, tickets: 14, urgent: 3};
+export const stats = {users: 12480, usersThisWeek: 240, usersLastWeek: 214, students: 12190, instructors: 278, admins: 12, courses: 312, inReview: 18, tickets: 14, urgent: 3};
 export const signups = [{d: 'M', v: 62}, {d: 'T', v: 88}, {d: 'W', v: 70}, {d: 'T', v: 110}, {d: 'F', v: 96}, {d: 'S', v: 128}, {d: 'S', v: 80}];
 
 export type CourseStatus = 'Published' | 'In review' | 'Draft' | 'Unpublished';
