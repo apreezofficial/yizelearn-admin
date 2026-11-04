@@ -1,0 +1,64 @@
+.groups {
+  max-width: 850px;
+  display: grid;
+  gap: 28px;
+}
+.groups h2 {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  padding: 18px 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.tile:hover {
+  background: var(--blue50);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--blue100);
+  color: var(--blue700);
+}
+.dot {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  background: var(--marigold);
+  border-radius: 50%;
+}
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .groups {
+    gap: 20px;
+  }
+  .tile {
+    min-height: 72px;
+    padding: 10px 4px;
+    font-size: 11px;
+  }
+}

@@ -38,6 +38,6 @@ export function Sheet({visible, onClose, children, tall, style}: Props) {
 const styles = StyleSheet.create({
   backdrop: {position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: colors.scrim},
   anchor: {flex: 1, justifyContent: 'flex-end'},
-  sheet: {backgroundColor: colors.cream, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 10},
+  sheet: {backgroundColor: colors.white, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 10},
   grabber: {alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: colors.sandLine, marginBottom: 8},
 });

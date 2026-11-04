@@ -1,5 +1,7 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Easing, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle} from 'react-native';
+import {Sheet} from './Sheet';
+import {PrimaryAction} from './Layout';
 import {Icon, type IconName} from './Icon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {haptic, useGlass, useReduceMotion} from '../theme/system';
@@ -9,7 +11,7 @@ import {colors, fonts, radius, spacing, type} from '../theme/tokens';
 const font = {fontFamily: fonts.family};
 
 /** Tab-page header from the admin designs: big title with a gold underline, a bell with an unread dot and the admin's initials. */
-export function TabHeader({title, onBell, unread = true}: {title: string; onBell?: () => void; unread?: boolean}) {
+export function TabHeader({title, onBell, onProfile, unread = true}: {title: string; onBell?: () => void; onProfile?: () => void; unread?: boolean}) {
   return <View style={styles.header}>
     <View>
       <Text style={[styles.headerTitle, font]} accessibilityRole="header">{title}</Text>
@@ -20,14 +22,14 @@ export function TabHeader({title, onBell, unread = true}: {title: string; onBell
         <Icon name="bell" size={22} color={colors.ink} />
         {unread && <View style={styles.bellDot} />}
       </Pressable>
-      <Avatar initials="SA" size={30} />
+      <Pressable onPress={onProfile} disabled={!onProfile} accessibilityRole="button" accessibilityLabel="Profile and settings"><Avatar initials="SN" size={30} /></Pressable>
     </View>
   </View>;
 }
 
 export function Avatar({initials, size = 40}: {initials: string; size?: number}) {
   return <View style={[styles.avatar, {width: size, height: size, borderRadius: size / 2}]}>
-    <Text style={[styles.avatarText, font, {fontSize: size * 0.32}]}>{initials}</Text>
+    <Text style={[styles.avatarText, font, {fontSize: size * 0.32, lineHeight: size * 0.32, textAlign: 'center'}]}>{initials}</Text>
   </View>;
 }
 
@@ -102,15 +104,15 @@ export function Field({label, multiline, ...input}: {label: string} & TextInputP
   </View>;
 }
 
-/** A dropdown-looking field that cycles through its options on tap, so it works the same on iOS and Android. */
+/** Accessible choice sheet shared by dropdown fields on both mobile platforms. */
 export function Select<T extends string>({label, value, options, onChange}: {label: string; value: T; options: readonly T[]; onChange: (v: T) => void}) {
-  const next = () => { haptic.select(); onChange(options[(options.indexOf(value) + 1) % options.length]); };
+  const [open, setOpen] = useState(false);
   return <View style={styles.field}>
     <Text style={[styles.label, font]}>{label}</Text>
-    <Pressable onPress={next} style={[styles.input, styles.select]} accessibilityRole="button" accessibilityLabel={`${label}, ${value}`} accessibilityHint="Changes to the next option">
-      <Text style={[styles.selectText, font]}>{value}</Text>
-      <Icon name="down" size={18} color={colors.ink} />
+    <Pressable onPress={() => setOpen(true)} style={[styles.input, styles.select]} accessibilityRole="button" accessibilityLabel={`${label}, ${value}`}>
+      <Text style={[styles.selectText, font]}>{value}</Text><Icon name="down" size={18} color={colors.ink} />
     </Pressable>
+    <Sheet visible={open} onClose={() => setOpen(false)}><Text style={adminStyles.section}>Choose {label.toLowerCase()}</Text><View accessibilityRole="radiogroup" style={{marginTop: 16}}>{options.map(option => <Pressable key={option} accessibilityRole="radio" accessibilityState={{checked: option === value}} onPress={() => { haptic.select(); onChange(option); }} style={[styles.input, {flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8}, option === value && {borderColor: colors.blue700, backgroundColor: colors.blue50}]}><View style={{width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: option === value ? colors.blue700 : colors.muted, alignItems: 'center', justifyContent: 'center'}}>{option === value && <View style={{width: 10, height: 10, borderRadius: 5, backgroundColor: colors.blue700}} />}</View><Text style={styles.selectText}>{option}</Text></Pressable>)}</View><PrimaryAction label="Done" onPress={() => setOpen(false)} /></Sheet>
   </View>;
 }
 
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
   rowValue: {fontSize: type.label, color: colors.ink, fontWeight: '800'},
   danger: {color: colors.danger},
   fabWrap: {position: 'absolute', right: spacing.screen, bottom: 24},
-  fab: {width: 56, height: 56, borderRadius: 28, backgroundColor: colors.blue600, alignItems: 'center', justifyContent: 'center', shadowColor: '#17335A', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: {width: 0, height: 6}, elevation: 6},
+  fab: {width: 56, height: 56, borderRadius: 28, backgroundColor: colors.sky, alignItems: 'center', justifyContent: 'center', shadowColor: '#17335A', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: {width: 0, height: 6}, elevation: 6},
   field: {marginBottom: 16},
   label: {fontSize: type.caption, color: colors.ink, fontWeight: '700', marginBottom: 8},
   input: {minHeight: 52, borderRadius: radius.field, borderWidth: 1, borderColor: colors.sandLine, backgroundColor: colors.white, paddingHorizontal: 14, fontSize: type.small, color: colors.ink},

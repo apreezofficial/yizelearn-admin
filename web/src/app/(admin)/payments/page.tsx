@@ -1,5 +1,7 @@
 'use client';
 
+import {printDocument} from '@/lib/download';
+import d from '@/components/learning.module.css';
 import {useState} from 'react';
 import {Avatar, Badge, Chips, Dialog, Empty, Search, useToast} from '@/components/ui';
 import ui from '@/components/ui.module.css';
@@ -15,12 +17,17 @@ export default function PaymentsPage() {
   const [tab, setTab] = useState<(typeof tabs)[number]>('Transactions');
   const [query, setQuery] = useState('');
   const [refunding, setRefunding] = useState<Payment | null>(null);
+  const [selected, setSelected] = useState<Payment | null>(null);
+  const [receipt, setReceipt] = useState(false);
   const [newCode, setNewCode] = useState<string | null>(null);
   const {toast, node} = useToast();
   const q = query.trim().toLowerCase();
   const list = payments.filter(p => (tab !== 'Receipts' || p.status === 'Paid') && (!q || p.name.toLowerCase().includes(q) || p.detail.toLowerCase().includes(q)));
 
+  const detail = selected ? payments.find(p => p.id === selected.id) ?? selected : null;
+  const order = detail ? `#${10482 - payments.findIndex(p => p.id === detail.id)}` : '';
   return <>
+    {detail ? <div className={d.narrow}><button className={ui.link} onClick={() => { if (receipt && tab !== 'Receipts') setReceipt(false); else setSelected(null); }}>← Back</button><h2>{receipt ? `Receipt ${order}` : 'Transaction'}</h2><div className={d.summary}><span className={d.muted}>{detail.name}, {receipt ? `${detail.date} 2026` : detail.status.toLowerCase()}</span><h2>{naira(detail.amount)}</h2></div>{[['Course', detail.detail.startsWith('Excel') ? 'Data analysis in Excel' : detail.detail.split(',')[0]], ...(receipt ? [['Tax', '₦0.00'], ['Total', naira(detail.amount)]] : [['Date', `${detail.date} 2026`], ['Method', detail.detail.includes('card') ? 'Card ending 4417' : 'Bank transfer'], ['Status', detail.status], ['Order', order]])].map(([k,v]) => <div key={k} className={ui.row}><span className={ui.rowCopy}>{k}</span><strong>{v}</strong></div>)}<div className={d.actions}>{receipt ? <><button className={ui.outline} onClick={() => { if (!printDocument(`Receipt ${order}`, [['Learner', detail.name], ['Amount', naira(detail.amount)], ['Date', `${detail.date} 2026`], ['Course', detail.detail]])) toast('Allow popups to save the receipt as PDF.'); }}>Download PDF</button><button className={ui.button} onClick={() => toast('Resending requires the admin messaging API.')}>Resend to learner</button></> : <><button className={ui.outline} disabled={detail.status !== 'Paid'} onClick={() => setReceipt(true)}>View receipt</button><button className={ui.button} disabled={detail.status === 'Refunded'} onClick={() => setRefunding(detail)}>Refund payment</button></>}</div></div> : <>
     <div className={s.tools}>
       {tab !== 'Promo codes' && <Search value={query} onChange={setQuery} placeholder="Search payments" />}
       <Chips items={tabs} active={tab} onSelect={setTab} />
@@ -38,11 +45,12 @@ export default function PaymentsPage() {
           <td>{p.date}</td>
           <td><Badge label={p.status} tone={p.status === 'Paid' ? 'green' : p.status === 'Pending' ? 'gold' : 'grey'} /></td>
           <td className={s.right}><strong>{naira(p.amount)}</strong></td>
-          <td className={s.right}>{tab === 'Receipts' ? <button className={ui.link} onClick={() => toast(`Receipt for ${p.name} copied`)}>Receipt</button> : p.status !== 'Refunded' && <button className={ui.link} style={{color: 'var(--danger)'}} onClick={() => setRefunding(p)}>Refund</button>}</td>
+          <td className={s.right}><button className={ui.link} onClick={() => { setSelected(p); setReceipt(tab === 'Receipts'); }}>{tab === 'Receipts' ? 'Receipt' : 'View details'}</button></td>
         </tr>)}</tbody>
       </table> : <Empty title="No payments found" message="Try another name or course." />}
     </div>
 
+    </>}
     {refunding && <Dialog title={`Refund ${naira(refunding.amount)}`} onClose={() => setRefunding(null)} actions={<>
       <button className={ui.outline} onClick={() => setRefunding(null)}>Cancel</button>
       <button className={ui.danger} onClick={() => { setPayments(l => l.map(p => (p.id === refunding.id ? {...p, status: 'Refunded', detail: 'Refunded'} : p))); toast(`${refunding.name} was refunded`); setRefunding(null); }}>Refund</button>

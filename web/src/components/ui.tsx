@@ -8,7 +8,7 @@ import ui from './ui.module.css';
 export const initials = (name: string) => name.split(/[\s@.]/).filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
 
 export function Avatar({name, size = 40}: {name: string; size?: number}) {
-  return <span className={ui.avatar} style={{width: size, height: size, fontSize: size * 0.32}} aria-hidden>{initials(name)}</span>;
+  return <span className={ui.avatar} style={{width: size, height: size}} aria-hidden><span className={ui.avatarInitials} style={{fontSize: size * 0.32}}>{initials(name)}</span></span>;
 }
 
 export function Badge({label, tone}: {label: string; tone: Tone}) {

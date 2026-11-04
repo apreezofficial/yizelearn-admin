@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {Alert, FlatList, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Alert, FlatList, ScrollView, Share, StyleSheet, Text, View} from 'react-native';
 import {adminStyles, ButtonPair, Chips, Fab, Row, SearchBox, TabHeader} from '../components/Admin';
 import {TabBarSpacer} from '../components/Catalog';
-import {TitleBar} from '../components/Layout';
+import {BottomButton, PrimaryAction, TitleBar} from '../components/Layout';
 import {Rise} from '../components/Motion';
 import {Sheet} from '../components/Sheet';
 import {EmptyState} from '../components/States';
@@ -21,16 +21,25 @@ export function PaymentsScreen({onBell, onPromos}: {onBell: () => void; onPromos
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<Tab>('Transactions');
   const [refunding, setRefunding] = useState<Payment>();
+  const [selected, setSelected] = useState<Payment>();
+  const [receipt, setReceipt] = useState(false);
   const q = query.trim().toLowerCase();
   const list = payments.filter(p => (tab !== 'Receipts' || p.status === 'Paid') && (!q || p.name.toLowerCase().includes(q) || p.detail.toLowerCase().includes(q)));
   const select = (t: Tab) => { if (t === 'Promo codes') onPromos(); else setTab(t); };
-  const open = (p: Payment) => {
-    if (tab === 'Receipts') { Alert.alert(`Receipt for ${p.name}`, `${formatNaira(p.amount)}, ${p.detail}, ${p.date}`); return; }
-    if (p.status === 'Refunded') { Alert.alert('Already refunded', `${p.name} got ${formatNaira(p.amount)} back.`); return; }
-    setRefunding(p);
-  };
+  const open = (p: Payment) => { setSelected(p); setReceipt(tab === 'Receipts'); };
   // Refunds go through the payment provider once it is connected; the list updates now.
-  const confirm = () => { if (!refunding) return; haptic.warning(); refund(refunding.id); setRefunding(undefined); };
+  const confirm = () => { if (!refunding) return; haptic.warning(); refund(refunding.id); setSelected({...refunding, status: 'Refunded'}); setRefunding(undefined); };
+  if (selected) return <View style={adminStyles.screen}>
+    <TitleBar title={receipt ? `Receipt #${10482 - payments.findIndex(p => p.id === selected.id)}` : 'Transaction'} onBack={() => { if (receipt && tab !== 'Receipts') setReceipt(false); else setSelected(undefined); }} />
+    <ScrollView contentContainerStyle={adminStyles.content}>
+      <View style={{backgroundColor: colors.blue50, borderRadius: radius.card, alignItems: 'center', padding: 28, marginVertical: 16}}><Text style={{color: colors.muted, fontSize: type.small}}>{selected.name}, {receipt ? selected.date : selected.status.toLowerCase()}</Text><Text style={{color: colors.ink, fontSize: 36, fontWeight: '800', marginTop: 12}}>{formatNaira(selected.amount)}</Text></View>
+      <Row title="Course" value={selected.detail.startsWith('Excel') ? 'Data analysis in Excel' : selected.detail.split(',')[0]} />
+      <Row title="Date" value={`${selected.date} 2026`} />
+      {receipt ? <><Row title="Tax" value="₦0.00" /><Row title="Total" value={formatNaira(selected.amount)} /></> : <><Row title="Method" value={selected.detail.includes('card') ? 'Card ending 4417' : 'Bank transfer'} /><Row title="Status" value={selected.status} /><Row title="Order" value={`#${10482 - payments.findIndex(p => p.id === selected.id)}`} /></>}
+    </ScrollView>
+    {receipt ? <BottomButton label="Share receipt" onPress={() => { Share.share({message: `Receipt for ${selected.name}\n${formatNaira(selected.amount)}\n${selected.detail}\n${selected.date} 2026`}).catch(() => Alert.alert('Could not share', 'Please try again.')); }} /> : <View style={adminStyles.footer}><PrimaryAction label="View receipt" outline disabled={selected.status !== 'Paid'} onPress={() => setReceipt(true)} /><PrimaryAction label="Refund payment" disabled={selected.status === 'Refunded'} onPress={() => setRefunding(selected)} /></View>}
+    <Sheet visible={!!refunding} onClose={() => setRefunding(undefined)}><Text style={styles.refundTitle}>Refund {formatNaira(selected.amount)}?</Text><Text style={styles.refundNote}>The learner is notified and loses access to the course. This cannot be undone.</Text><Row initials={initials(selected.name)} title={selected.name} detail={selected.detail} /><ButtonPair left={{label: 'Cancel', onPress: () => setRefunding(undefined)}} right={{label: 'Refund', danger: true, onPress: confirm}} /></Sheet>
+  </View>;
   return <View style={adminStyles.screen}>
     <TabHeader title="Payments" onBell={onBell} />
     <View style={styles.tools}>

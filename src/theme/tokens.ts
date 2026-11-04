@@ -2,12 +2,12 @@ import {Appearance, DynamicColorIOS, Platform, type ColorValue} from 'react-nati
 
 const light = {
   cotton: '#FBFBF9',
-  cream: '#FDF8F1',
-  barBg: '#F7F6FA',
+  cream: '#FFF9F1',
+  barBg: '#F6F1E9',
   sand: '#F4EFE7',
   sandLine: '#DCD5CA',
   blue50: '#EFF5FC',
-  blue100: '#DFEBF9',
+  blue100: '#C4DBF6',
   sky: '#74A7E3',
   blue600: '#4F8BCD',
   blue700: '#2F6DB5',
@@ -17,7 +17,7 @@ const light = {
   muted: '#5C6472',
   line: '#E6E7E5',
   // Card and field surfaces. Dark mode turns these dark, so text on a coloured button uses onAccent.
-  white: '#FFFFFF',
+  white: '#FAFAFF',
   onAccent: '#FFFFFF',
   heroText: '#FBF1E1',
   marigold: '#F0B74A',
@@ -28,7 +28,7 @@ const light = {
   // The chalkboard panels used for the continue, player and quiz cards.
   chalk: '#273531',
   chalkText: '#FEF9F2',
-  danger: '#B53A3A',
+  danger: '#CA494B',
   success: '#2E8B67',
   // Chat bubbles and the dimmed backdrop behind sheets.
   bubble: '#F1EEE8',
@@ -93,12 +93,12 @@ export function resolveColor(color: ColorValue, scheme: 'light' | 'dark' | null 
 // Brand font is Cavolini. Set `family` to 'Cavolini' once the font files are bundled.
 export const fonts = {family: undefined as string | undefined} as const;
 
-export const spacing = {screen: 20, card: 16, gap: 14, section: 28, target: 48, button: 56} as const;
+export const spacing = {screen: 20, card: 16, gap: 14, section: 24, target: 48, button: 50} as const;
 
 // Type scale sized for phones held at arm's length; nothing smaller than 13 except tab labels.
 export const type = {display: 32, title: 26, heading: 20, subheading: 18, body: 16, label: 15, small: 14, caption: 13, tab: 12} as const;
 
-export const radius = {card: 16, field: 14, pill: 999, button: 14} as const;
+export const radius = {card: 16, field: 12, pill: 999, button: 12} as const;
 
 // Motion shared with the launch intro, so every screen moves the same way.
 export const motion = {

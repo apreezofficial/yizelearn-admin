@@ -7,6 +7,7 @@ import {Icon} from '@/components/Icon';
 import ui from '@/components/ui.module.css';
 import {auditLog, categories, instructorCount, instructorPermissions, integrations as seedIntegrations, privacyRequests as seedPrivacy, tags, type Integration, type PrivacyRequest} from '@/lib/data';
 import s from '../list.module.css';
+import learning from '@/components/learning.module.css';
 
 const tabs = ['Instructor role', 'Categories', 'Integrations', 'Announcement', 'Privacy', 'Audit log'] as const;
 type Tab = (typeof tabs)[number];
@@ -17,11 +18,13 @@ export default function SettingsPage() {
 
 // Remount when the ?tab= link changes, so the bell and More links switch tabs even from this page.
 function SettingsFromUrl() {
-  const initial = useSearchParams().get('tab') as Tab | null;
-  return <Settings key={initial ?? ''} initial={initial} />;
+  const params = useSearchParams();
+  const initial = params.get('tab') as Tab | null;
+  const cohort = params.get('cohort');
+  return <Settings key={`${initial}-${cohort}`} initial={initial} cohort={cohort} />;
 }
 
-function Settings({initial}: {initial: Tab | null}) {
+function Settings({initial, cohort}: {initial: Tab | null; cohort: string | null}) {
   const [tab, setTab] = useState<Tab>(initial && tabs.includes(initial) ? initial : 'Instructor role');
   const {toast, node} = useToast();
   return <>
@@ -29,8 +32,8 @@ function Settings({initial}: {initial: Tab | null}) {
     <div key={tab} className="rise">
       {tab === 'Instructor role' && <Role toast={toast} />}
       {tab === 'Categories' && <Categories />}
-      {tab === 'Integrations' && <Integrations toast={toast} />}
-      {tab === 'Announcement' && <Announcement toast={toast} />}
+      {tab === 'Integrations' && <Integrations />}
+      {tab === 'Announcement' && <Announcement toast={toast} cohort={cohort} />}
       {tab === 'Privacy' && <Privacy toast={toast} />}
       {tab === 'Audit log' && <Audit />}
     </div>
@@ -66,34 +69,37 @@ function Categories() {
   </div>;
 }
 
-function Integrations({toast}: Toast) {
+function Integrations() {
   const [list, setList] = useState<Integration[]>(seedIntegrations);
   const [editing, setEditing] = useState<Integration | null>(null);
   const [key, setKey] = useState('');
   const [secret, setSecret] = useState('');
+  const [connected, setConnected] = useState<string | null>(null);
+  if (connected) return <div className={learning.success}><div className={learning.ring}><Icon name="check" size={40} /></div><h2>{connected} is connected</h2><p className={learning.muted}>Configuration saved in this preview. Live verification requires the integration API.</p><button className={ui.button} onClick={() => setConnected(null)}>Done</button></div>;
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 640}}>
     {list.map(x => <button key={x.id} className={ui.row} onClick={() => { setEditing(x); setKey(''); setSecret(''); }}>
       <span className={ui.rowIcon}><Icon name="grid" size={18} /></span><span className={ui.rowCopy}><strong>{x.name}</strong></span><Badge label={x.connected ? 'Connected' : 'Not set up'} tone={x.connected ? 'green' : 'grey'} />
     </button>)}
     {editing && <Dialog title={editing.name} onClose={() => setEditing(null)} actions={<>
       <button className={ui.outline} onClick={() => setEditing(null)}>Cancel</button>
-      <button className={ui.button} disabled={!key.trim() || !secret.trim()} onClick={() => { setList(l => l.map(i => (i.id === editing.id ? {...i, connected: true} : i))); toast(`${editing.name} connected`); setEditing(null); }}>{editing.connected ? 'Test and save' : 'Test and enable'}</button>
+      <button className={ui.button} disabled={!key.trim() || (editing.id !== 'sms' && !secret.trim())} onClick={() => { setList(l => l.map(i => (i.id === editing.id ? {...i, connected: true} : i))); setConnected(editing.name); setEditing(null); }}>Test and enable</button>
     </>}>
+      {editing.id === 'sms' && <div className={ui.field}><label className={ui.label} htmlFor="provider">Provider</label><select id="provider" className={ui.input}><option>Mailgun</option><option>SendGrid</option></select></div>}
       <div className={ui.field}><label className={ui.label} htmlFor="key">API key</label><input id="key" className={ui.input} autoComplete="off" placeholder="Paste key" value={key} onChange={e => setKey(e.target.value)} /></div>
-      <div className={ui.field}><label className={ui.label} htmlFor="secret">API secret</label><input id="secret" className={ui.input} type="password" autoComplete="off" placeholder="Paste secret" value={secret} onChange={e => setSecret(e.target.value)} /></div>
-      <div className={ui.field}><label className={ui.label} htmlFor="acct">Account</label><select id="acct" className={ui.input}><option>Primary account</option><option>Training account</option></select></div>
+      {editing.id !== 'sms' ? <><div className={ui.field}><label className={ui.label} htmlFor="secret">API secret</label><input id="secret" className={ui.input} type="password" autoComplete="off" placeholder="Paste secret" value={secret} onChange={e => setSecret(e.target.value)} /></div>
+      <div className={ui.field}><label className={ui.label} htmlFor="acct">Account</label><select id="acct" className={ui.input}><option>Primary account</option><option>Training account</option></select></div></> : <><div className={ui.field}><label className={ui.label} htmlFor="sender">Sender name</label><input id="sender" className={ui.input} defaultValue="E-learn" /></div><div className={ui.field}><label className={ui.label} htmlFor="sms-provider">SMS provider</label><select id="sms-provider" className={ui.input}><option>Not set</option><option>Twilio</option><option>Termii</option></select></div></>}
     </Dialog>}
   </div>;
 }
 
-function Announcement({toast}: Toast) {
+function Announcement({toast, cohort}: Toast & {cohort: string | null}) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [confirming, setConfirming] = useState(false);
-  const [audience, setAudience] = useState('All users');
+  const [audience, setAudience] = useState(cohort || 'All users');
   const [when, setWhen] = useState('Now');
   return <div className={`${ui.card} ${s.panel}`} style={{maxWidth: 640, padding: 18}}>
-    <div className={ui.field}><label className={ui.label} htmlFor="aud">Audience</label><select id="aud" className={ui.input} value={audience} onChange={e => setAudience(e.target.value)}><option>All users</option><option>Students</option><option>Instructors</option></select></div>
+    <div className={ui.field}><label className={ui.label} htmlFor="aud">Audience</label><select id="aud" className={ui.input} value={audience} onChange={e => setAudience(e.target.value)}><option>All users</option><option>Students</option><option>Instructors</option>{cohort && <option>{cohort}</option>}</select></div>
     <div className={ui.field}><label className={ui.label} htmlFor="atitle">Title</label><input id="atitle" className={ui.input} placeholder="Scheduled maintenance" value={title} onChange={e => setTitle(e.target.value)} /></div>
     <div className={ui.field}><label className={ui.label} htmlFor="amsg">Message</label><textarea id="amsg" className={ui.input} placeholder="Write your announcement" value={message} onChange={e => setMessage(e.target.value)} /></div>
     <div className={ui.field}><label className={ui.label} htmlFor="when">Send</label><select id="when" className={ui.input} value={when} onChange={e => setWhen(e.target.value)}><option>Now</option><option>Tomorrow 9 AM</option><option>Next Monday 9 AM</option></select></div>

@@ -27,7 +27,7 @@ export const courses: AdminCourse[] = [
   {id: 'py', title: 'Intro to Python', instructor: 'Ada Obi', status: 'Draft'},
 ];
 
-export const categories = [{name: 'Business', count: 84}, {name: 'Technology', count: 120}, {name: 'Design', count: 46}, {name: 'Health', count: 32}];
+export const categories = [{name: 'AI', count: 84}, {name: 'Programming', count: 120}, {name: 'Design', count: 46}, {name: 'Mobile Dev', count: 32}];
 export const tags = [{name: 'Excel', count: 22}, {name: 'Beginner', count: 140}, {name: 'Certificate', count: 96}, {name: 'Python', count: 18}];
 
 export const enrolCheck = {ready: 48, problems: ['Row 12: invalid email', 'Row 20: unknown course', 'Row 33: duplicate']};

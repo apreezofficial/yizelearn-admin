@@ -1,8 +1,8 @@
 import React, {useRef, useState} from 'react';
-import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View, type ScrollViewInstance} from 'react-native';
+import {Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type ScrollViewInstance} from 'react-native';
 import {adminStyles, ButtonPair, Chips, Field, Row, SearchBox, Select, TabHeader, Toggle} from '../components/Admin';
 import {TabBarSpacer} from '../components/Catalog';
-import {type IconName} from '../components/Icon';
+import {Icon, type IconName} from '../components/Icon';
 import {BottomButton, TitleBar} from '../components/Layout';
 import {Rise} from '../components/Motion';
 import {EmptyState} from '../components/States';
@@ -13,28 +13,22 @@ import {colors, fonts, radius, spacing, type} from '../theme/tokens';
 
 const font = {fontFamily: fonts.family};
 
-export type MorePage = 'Categories' | 'BulkEnrol' | 'Promos' | 'Role' | 'Audit' | 'Integrations' | 'Support' | 'Announcement' | 'Privacy';
-const menu: {page: MorePage; title: string; detail: string; icon: IconName}[] = [
-  {page: 'Support', title: 'Support tickets', detail: 'Questions from learners', icon: 'message'},
-  {page: 'Announcement', title: 'Platform announcement', detail: 'Message every user', icon: 'bell'},
-  {page: 'Categories', title: 'Categories and tags', detail: 'How courses are grouped', icon: 'grid'},
-  {page: 'BulkEnrol', title: 'Bulk enrol', detail: 'Add learners from a CSV', icon: 'upload'},
-  {page: 'Promos', title: 'Promo codes', detail: 'Discounts at checkout', icon: 'tag'},
-  {page: 'Role', title: 'Instructor role', detail: 'What instructors can do', icon: 'role'},
-  {page: 'Integrations', title: 'Integrations', detail: 'SSO, Zoom, email and more', icon: 'settings'},
-  {page: 'Privacy', title: 'Privacy requests', detail: 'Exports and deletions', icon: 'lock'},
-  {page: 'Audit', title: 'Audit log', detail: 'Who changed what', icon: 'file'},
+export type MorePage = 'Cohorts' | 'AtRisk' | 'Reports' | 'Certificates' | 'Profile' | 'Categories' | 'BulkEnrol' | 'Promos' | 'Role' | 'Audit' | 'Integrations' | 'Support' | 'Announcement' | 'Privacy';
+const groups: {title: string; items: {page: MorePage; title: string; icon: IconName; fresh?: boolean}[]}[] = [
+  {title: 'Learning', items: [
+    {page: 'Cohorts', title: 'Cohorts', icon: 'users', fresh: true}, {page: 'AtRisk', title: 'At risk', icon: 'alert', fresh: true},
+    {page: 'Certificates', title: 'Certificates', icon: 'award', fresh: true}, {page: 'Reports', title: 'Reports', icon: 'chart', fresh: true},
+  ]},
+  {title: 'Platform', items: [{page: 'Role', title: 'Roles', icon: 'role'}, {page: 'Integrations', title: 'Integrations', icon: 'grid'}, {page: 'Audit', title: 'Audit log', icon: 'file'}, {page: 'Privacy', title: 'Privacy', icon: 'lock'}]},
+  {title: 'Communicate', items: [{page: 'Announcement', title: 'Announcements', icon: 'bell'}, {page: 'Support', title: 'Support', icon: 'message'}]},
+  {title: 'Setup', items: [{page: 'Categories', title: 'Categories', icon: 'laptop'}, {page: 'BulkEnrol', title: 'Bulk enrol', icon: 'upload'}, {page: 'Profile', title: 'Settings', icon: 'settings'}]},
 ];
-
 export function MoreScreen({onBell, onOpen, onLogout}: {onBell: () => void; onOpen: (p: MorePage) => void; onLogout: () => void}) {
-  const {tickets, privacy} = useAdmin();
-  const counts: Partial<Record<MorePage, number>> = {Support: tickets.filter(t => t.open).length, Privacy: privacy.filter(r => r.open).length};
   return <View style={adminStyles.screen}>
-    <TabHeader title="More" onBell={onBell} />
+    <TabHeader title="More" onBell={onBell} onProfile={() => onOpen('Profile')} />
     <ScrollView contentContainerStyle={adminStyles.content} showsVerticalScrollIndicator={false}>
-      {menu.map((m, i) => <Rise key={m.page} delay={i * 40}><Row icon={m.icon} title={m.title} detail={m.detail} badge={counts[m.page] ? {label: `${counts[m.page]} open`, tone: 'gold'} : undefined} chevron onPress={() => onOpen(m.page)} /></Rise>)}
-      <Row icon="logout" title="Log out" danger onPress={onLogout} />
-      <TabBarSpacer />
+      {groups.map(group => <View key={group.title} style={{marginBottom: 18}}><Text style={{fontSize: type.caption, color: colors.muted, fontWeight: '700', marginBottom: 8}}>{group.title}</Text><View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8}}>{group.items.map(item => <Pressable key={item.page} onPress={() => onOpen(item.page)} accessibilityRole="button" style={{width: '31.5%', minHeight: 68, padding: 8, gap: 6, borderWidth: 1, borderColor: colors.line, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center'}}><View style={{backgroundColor: colors.blue100, padding: 6, borderRadius: 20}}><Icon name={item.icon} size={17} color={colors.blue700} /></View><Text style={{fontSize: 11, fontWeight: '700', color: colors.ink}}>{item.title}</Text>{item.fresh && <View style={{position: 'absolute', top: 7, right: 7, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.marigold}} />}</Pressable>)}</View></View>)}
+      <Row icon="logout" title="Log out" danger onPress={onLogout} /><TabBarSpacer />
     </ScrollView>
   </View>;
 }
@@ -85,16 +79,22 @@ export function ConfigureIntegrationScreen({id, onBack}: {id: string; onBack: ()
   const [key, setKey] = useState('');
   const [secret, setSecret] = useState('');
   const [account, setAccount] = useState<'Primary account' | 'Training account'>('Primary account');
-  // Keys are tested by the server once the admin API is connected; for now a filled form counts as a pass.
-  const test = () => { haptic.success(); connect(id); Alert.alert(`${integration?.name} connected`, `Using the ${account.toLowerCase()}.`); onBack(); };
+  const [provider, setProvider] = useState('Mailgun');
+  const [sender, setSender] = useState('E-learn');
+  const [sms, setSms] = useState('Not set');
+  const [done, setDone] = useState(false);
+  const email = id === 'sms';
+  const test = () => { connect(id); haptic.success(); setDone(true); };
   return <View style={adminStyles.screen}>
     <TitleBar title={integration?.name ?? 'Integration'} onBack={onBack} />
+    {done ? <View style={{flex: 1, justifyContent: 'center', padding: 36, alignItems: 'center'}}><View style={{width: 140, height: 140, borderRadius: 70, borderWidth: 22, borderColor: colors.successSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 30}}><Icon name="check" size={40} color={colors.success} /></View><Text style={adminStyles.section}>{integration?.name} is connected</Text><Text style={{color: colors.muted, textAlign: 'center', marginVertical: 16}}>Configuration saved in this preview. Live verification requires the integration API.</Text><BottomButton label="Done" onPress={onBack} /></View> : <>
     <ScrollView contentContainerStyle={adminStyles.content} keyboardShouldPersistTaps="handled">
-      <Field label="API key" value={key} onChangeText={setKey} placeholder="Paste key" autoCapitalize="none" autoCorrect={false} />
-      <Field label="API secret" value={secret} onChangeText={setSecret} placeholder="Paste secret" autoCapitalize="none" autoCorrect={false} secureTextEntry />
-      <Select label="Account" value={account} options={['Primary account', 'Training account'] as const} onChange={setAccount} />
+      {email ? <Select label="Provider" value={provider} options={['Mailgun', 'SendGrid']} onChange={setProvider} /> : <Select label="Account" value={account} options={['Primary account', 'Training account'] as const} onChange={setAccount} />}
+      <Field label="API key" value={key} onChangeText={setKey} placeholder="Paste key" autoCapitalize="none" autoCorrect={false} secureTextEntry />
+      {email ? <><Field label="Sender name" value={sender} onChangeText={setSender} /><Select label="SMS provider" value={sms} options={['Not set', 'Twilio', 'Termii']} onChange={setSms} /></> : <Field label="API secret" value={secret} onChangeText={setSecret} placeholder="Paste secret" autoCapitalize="none" autoCorrect={false} secureTextEntry />}
     </ScrollView>
-    <BottomButton label={integration?.connected ? 'Test and save' : 'Test and enable'} disabled={!key.trim() || !secret.trim()} onPress={test} />
+    <BottomButton label="Test and enable" disabled={!key.trim() || (email ? !sender.trim() : !secret.trim())} onPress={test} />
+    </>}
   </View>;
 }
 
@@ -134,8 +134,8 @@ export function TicketScreen({id, onBack}: {id: string; onBack: () => void}) {
   </KeyboardAvoidingView>;
 }
 
-export function AnnouncementScreen({onBack}: {onBack: () => void}) {
-  const [audience, setAudience] = useState<'All users' | 'Students' | 'Instructors'>('All users');
+export function AnnouncementScreen({onBack, cohort}: {onBack: () => void; cohort?: string}) {
+  const [audience, setAudience] = useState(cohort || 'All users');
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [when, setWhen] = useState<'Now' | 'Tomorrow 9 AM' | 'Next Monday 9 AM'>('Now');
@@ -146,7 +146,7 @@ export function AnnouncementScreen({onBack}: {onBack: () => void}) {
   return <View style={adminStyles.screen}>
     <TitleBar title="Platform announcement" onBack={onBack} />
     <ScrollView contentContainerStyle={adminStyles.content} keyboardShouldPersistTaps="handled">
-      <Select label="Audience" value={audience} options={['All users', 'Students', 'Instructors'] as const} onChange={setAudience} />
+      <Select label="Audience" value={audience} options={['All users', 'Students', 'Instructors', ...(cohort ? [cohort] : [])]} onChange={setAudience} />
       <Field label="Title" value={title} onChangeText={setTitle} placeholder="Scheduled maintenance" />
       <Field label="Message" value={message} onChangeText={setMessage} placeholder="Write your announcement" multiline />
       <Select label="Send" value={when} options={['Now', 'Tomorrow 9 AM', 'Next Monday 9 AM'] as const} onChange={setWhen} />

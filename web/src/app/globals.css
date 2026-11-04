@@ -1,11 +1,11 @@
 /* Same palette as the mobile apps (src/theme/tokens.ts), with the dark values under prefers-color-scheme. */
 :root {
-  --cream: #FDF8F1;
+  --cream: #FFF9F1;
   --sand: #F4EFE7;
   --sand-line: #DCD5CA;
-  --surface: #FFFFFF;
+  --surface: #FAFAFF;
   --blue50: #EFF5FC;
-  --blue100: #DFEBF9;
+  --blue100: #C4DBF6;
   --sky: #74A7E3;
   --blue600: #4F8BCD;
   --blue700: #2F6DB5;
@@ -17,7 +17,7 @@
   --on-accent: #FFFFFF;
   --on-sky: #17335A;
   --marigold: #F0B74A;
-  --danger: #B53A3A;
+  --danger: #CA494B;
   --danger-soft: #FBE6E6;
   --success: #2E8B67;
   --success-soft: #E6F3EC;

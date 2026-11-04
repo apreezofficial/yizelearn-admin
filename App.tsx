@@ -11,6 +11,8 @@ import {BulkSelectScreen, InviteScreen, UserDetailScreen, UsersScreen} from './s
 import {BulkEnrolScreen, CategoriesScreen, CoursesScreen} from './src/screens/CoursesScreens';
 import {PaymentsScreen, PromoCodesScreen} from './src/screens/PaymentsScreens';
 import {AnnouncementScreen, AuditLogScreen, ConfigureIntegrationScreen, InstructorRoleScreen, IntegrationsScreen, MoreScreen, PrivacyScreen, SupportScreen, TicketScreen, type MorePage} from './src/screens/MoreScreens';
+import {LearningProvider, LearningScreen} from './src/screens/LearningScreens';
+import {ProfileScreen} from './src/screens/ProfileScreens';
 import {useGlass} from './src/theme/system';
 import {colors} from './src/theme/tokens';
 
@@ -26,7 +28,7 @@ const tabs: TabItem<Tab>[] = [
 const isTab = (p: Page): p is Tab => tabs.some(t => t.key === p);
 
 export default function App() {
-  return <SafeAreaProvider initialMetrics={initialWindowMetrics}><AdminProvider><AdminApp /></AdminProvider></SafeAreaProvider>;
+  return <SafeAreaProvider initialMetrics={initialWindowMetrics}><AdminProvider><LearningProvider><AdminApp /></LearningProvider></AdminProvider></SafeAreaProvider>;
 }
 
 function AdminApp() {
@@ -40,7 +42,7 @@ function AdminApp() {
   const history = useRef<Page[]>([]);
 
   const nav = (p: Page, value?: string) => {
-    if (value !== undefined) setParam(value);
+    setParam(value ?? '');
     if (isTab(p)) { history.current = []; setTab(p); } else history.current.push(page);
     setPage(p);
   };
@@ -73,6 +75,8 @@ function AdminApp() {
       case 'BulkEnrol': return <BulkEnrolScreen onBack={back} />;
       case 'Payments': return <PaymentsScreen onBell={bell} onPromos={() => nav('Promos')} />;
       case 'Promos': return <PromoCodesScreen onBack={back} />;
+      case 'Cohorts': case 'AtRisk': case 'Reports': case 'Certificates': return <LearningScreen page={page} onBack={back} onMessage={cohort => nav('Announcement', cohort)} />;
+      case 'Profile': return <ProfileScreen onBack={back} onLogout={logout} />;
       case 'More': return <MoreScreen onBell={bell} onOpen={p => nav(p)} onLogout={logout} />;
       case 'Role': return <InstructorRoleScreen onBack={back} />;
       case 'Audit': return <AuditLogScreen onBack={back} />;
@@ -80,7 +84,7 @@ function AdminApp() {
       case 'Configure': return <ConfigureIntegrationScreen id={param} onBack={back} />;
       case 'Support': return <SupportScreen onBack={back} onOpen={id => nav('Ticket', id)} />;
       case 'Ticket': return <TicketScreen id={param} onBack={back} />;
-      case 'Announcement': return <AnnouncementScreen onBack={back} />;
+      case 'Announcement': return <AnnouncementScreen onBack={back} cohort={param || undefined} />;
       case 'Privacy': return <PrivacyScreen onBack={back} />;
       case 'Login': return <LoginScreen onSent={email => { setParam(email); history.current = []; setPage('Verify'); }} />;
       case 'Verify': return <VerifyScreen email={param} onBack={() => setPage('Login')} onVerified={() => nav('Dashboard')} />;

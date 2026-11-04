@@ -1,5 +1,6 @@
 'use client';
 
+import {LearningProvider} from '@/components/LearningProvider';
 import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
@@ -15,12 +16,17 @@ const side: Item[] = [
   {href: '/users', label: 'Users', icon: 'users'},
   {href: '/courses', label: 'Courses', icon: 'courses'},
   {href: '/payments', label: 'Payments', icon: 'payments'},
+  {href: '/cohorts', label: 'Cohorts', icon: 'users'},
+  {href: '/at-risk', label: 'At risk', icon: 'alert'},
+  {href: '/reports', label: 'Reports', icon: 'chart'},
+  {href: '/certificates', label: 'Certificates', icon: 'award'},
+  {href: '/more', label: 'More', icon: 'more'},
   {href: '/support', label: 'Support', icon: 'support'},
   {href: '/settings', label: 'Settings', icon: 'settings'},
 ];
 const tabs: Item[] = [...side.slice(0, 4), {href: '/more', label: 'More', icon: 'more'}];
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const titles: Record<string, string> = {'/more': 'More'};
+const titles: Record<string, string> = {'/more': 'More', '/profile': 'Profile and settings', '/bulk-enrol': 'Bulk enrol'};
 
 export default function AdminLayout({children}: {children: React.ReactNode}) {
   const path = usePathname();
@@ -28,9 +34,9 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
   const logout = () => { signOut(); router.replace('/login'); router.refresh(); };
   const title = titles[path] ?? side.find(n => isOn(path, n.href))?.label ?? 'Admin';
   // Support and Settings sit under More on phones, so that tab stays lit for them.
-  const tabOn = (href: string) => (href === '/more' ? ['/more', '/support', '/settings'].some(p => path.startsWith(p)) : isOn(path, href));
+  const tabOn = (href: string) => (href === '/more' ? ['/more', '/support', '/settings', '/cohorts', '/at-risk', '/reports', '/certificates', '/profile', '/bulk-enrol'].some(p => path.startsWith(p)) : isOn(path, href));
 
-  return <div className={s.shell}>
+  return <LearningProvider><div className={s.shell}>
     <aside className={s.side}>
       <Image src="/logo.png" alt="yizelearn" width={110} height={40} className={s.logo} />
       <nav className={s.nav} aria-label="Admin">
@@ -49,7 +55,7 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
             <Icon name="bell" size={22} />
             <span className={s.dot} />
           </Link>
-          <Avatar name="Sam Admin" size={34} />
+          <Link href="/profile" aria-label="Profile and settings"><Avatar name="Sunday Nwachukwu" size={34} /></Link>
         </div>
       </header>
       <main className={s.content} key={path}>{children}</main>
@@ -61,5 +67,5 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
         {t.label}
       </Link>)}
     </nav>
-  </div>;
+  </div></LearningProvider>;
 }

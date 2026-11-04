@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {useState} from 'react';
-import {courses, integrations, signups, stats, tickets} from '@/lib/data';
+import {courses, integrations, signups, stats} from '@/lib/data';
 import {Icon, type IconName} from '@/components/Icon';
 import {useCountUp} from '@/components/motion';
 import ui from '@/components/ui.module.css';
@@ -15,34 +15,21 @@ const ticketTrend = [22, 19, 21, 17, 18, 15, 14];
 export default function Dashboard() {
   const users = useCountUp(stats.users, {duration: 1200});
   const thisWeek = useCountUp(stats.usersThisWeek, {delay: 500});
-  const students = useCountUp(stats.students, {duration: 1200, delay: 250});
-  const instructors = useCountUp(stats.instructors, {delay: 350});
-  const admins = useCountUp(stats.admins, {delay: 450});
-  const growth = Math.round(((stats.usersThisWeek - stats.usersLastWeek) / stats.usersLastWeek) * 100);
   const inReview = courses.filter(c => c.status === 'In review').length;
-  const open = tickets.filter(t => t.open).length;
   const notSetUp = integrations.filter(i => !i.connected).length;
   const attention: {href: string; icon: IconName; title: string; detail: string}[] = [
     ...(inReview ? [{href: '/courses?filter=In%20review', icon: 'courses' as const, title: `${inReview} ${inReview === 1 ? 'course' : 'courses'} in review`, detail: 'Oldest waiting 2 days'}] : []),
     ...(notSetUp ? [{href: '/settings?tab=Integrations', icon: 'payments' as const, title: 'Payment gateway warning', detail: 'Check provider keys'}] : []),
-    ...(open ? [{href: '/support', icon: 'support' as const, title: `${open} open support tickets`, detail: 'Reply within a day'}] : []),
   ];
 
   return <>
     <section className={s.grid}>
       <div className={`${s.hero} rise`} aria-label={`Total users ${stats.users.toLocaleString()}, ${stats.usersThisWeek} new this week`}>
-        <span className={s.glow} aria-hidden /><span className={s.dots} aria-hidden /><span className={s.shine} aria-hidden />
-        <span className={s.ring} aria-hidden /><span className={s.bubble} aria-hidden /><span className={s.bubbleSmall} aria-hidden /><span className={s.goldDot} aria-hidden />
-        <div className={s.heroLabel}><span className={s.heroIcon}><Icon name="users" size={15} /></span>Total users</div>
+        <span className={s.bubble} aria-hidden /><span className={s.bubbleSmall} aria-hidden /><span className={s.goldDot} aria-hidden />
+        <div className={s.heroLabel}>Total users</div>
         <strong>{users.toLocaleString()}</strong>
         <div className={s.heroMeta}>
           <span className={s.pill}>+{thisWeek} this week</span>
-          <span className={s.vs}>{growth >= 0 ? '↑' : '↓'} {Math.abs(growth)}% vs last week</span>
-        </div>
-        <div className={s.split}>
-          <span><b>{students.toLocaleString()}</b>Students</span>
-          <span><b>{instructors.toLocaleString()}</b>Instructors</span>
-          <span><b>{admins}</b>Admins</span>
         </div>
       </div>
       <Tile href="/courses" icon="courses" label="Courses" value={stats.courses} note={`${stats.inReview} in review`} trend={courseTrend} delay={80} />
@@ -75,14 +62,13 @@ function Tile({href, icon, label, value, note, trend, delay}: {href: string; ico
   </Link>;
 }
 
-/** Bars grow in one after another, then a trend line flows across their tops and the busiest day pops its label. */
+/** Weekly sign-ups with the busiest day highlighted. */
 function SignupChart() {
   const [hover, setHover] = useState<number | null>(null);
   const max = Math.max(...signups.map(d => d.v));
   const peak = signups.findIndex(d => d.v === max);
   const total = useCountUp(signups.reduce((n, d) => n + d.v, 0), {delay: 300});
   const H = 120;
-  const line = signups.map((d, i) => `${((i + 0.5) / signups.length) * 100},${H - (d.v / max) * H + 4}`).join(' ');
   const shown = hover ?? peak;
   return <div className={`${ui.card} ${s.chart} rise`} style={{animationDelay: '200ms'}}>
     <div className={s.chartHead}><span>Sign-ups <b className={s.total}>{total}</b></span><span>7 days</span></div>
@@ -94,9 +80,7 @@ function SignupChart() {
           <small>{d.d}</small>
         </div>)}
       </div>
-      <svg className={s.trend} viewBox={`0 0 100 ${H + 8}`} preserveAspectRatio="none" aria-hidden>
-        <polyline points={line} />
-      </svg>
+
     </div>
   </div>;
 }
